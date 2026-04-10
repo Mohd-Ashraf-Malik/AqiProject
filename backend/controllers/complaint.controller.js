@@ -1,5 +1,4 @@
 import Complaint from "../models/complaint.model.js";
-import OtpVerification from "../models/otp-verification.model.js";
 import Municipality from "../models/municipality.model.js";
 import asyncHandler from "../utils/async-handler.js";
 import AppError from "../utils/app-error.js";
@@ -8,6 +7,7 @@ import { getStartAndEndOfCurrentDay } from "../utils/date.js";
 import { COMPLAINT_CHALLENGES } from "../constants/complaint.constants.js";
 import { uploadBufferToCloudinary } from "../utils/upload.js";
 import { resolveNearestStation } from "../services/station.service.js";
+import { mailer } from "../utils/mailer.js";
 
 const ensureString = (value, fieldName, { maxLength } = {}) => {
   const parsed = `${value || ""}`.trim();
@@ -102,13 +102,101 @@ export const getComplaintMeta = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * GET /complaints/stats
+ * Query params:
+ *   cities  – comma-separated list of city names to filter (optional)
+ *   limit   – max cities to return (default 10)
+ *
+ * Returns complaint counts grouped by city with status breakdown
+ * and the top 3 reported challenges per city.
+ */
+export const getComplaintStats = asyncHandler(async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
+
+  const cityFilter = req.query.cities
+    ? {
+        "assignedStation.city": {
+          $in: req.query.cities
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean),
+        },
+      }
+    : {};
+
+  const rows = await Complaint.aggregate([
+    { $match: cityFilter },
+    { $unwind: "$challenges" },
+    {
+      $group: {
+        _id: {
+          city: "$assignedStation.city",
+          state: "$assignedStation.state",
+          challenge: "$challenges",
+          status: "$status",
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          city: "$_id.city",
+          state: "$_id.state",
+        },
+        total: { $sum: "$count" },
+        statusBreakdown: {
+          $push: {
+            status: "$_id.status",
+            count: "$count",
+          },
+        },
+        challengeBreakdown: {
+          $push: {
+            challenge: "$_id.challenge",
+            count: "$count",
+          },
+        },
+      },
+    },
+    { $sort: { total: -1 } },
+    { $limit: limit },
+    {
+      $project: {
+        _id: 0,
+        city: "$_id.city",
+        state: "$_id.state",
+        total: 1,
+        statusBreakdown: 1,
+        topChallenges: {
+          $slice: [
+            {
+              $sortArray: {
+                input: "$challengeBreakdown",
+                sortBy: { count: -1 },
+              },
+            },
+            3,
+          ],
+        },
+      },
+    },
+  ]);
+
+  return sendSuccess(res, 200, "Complaint statistics fetched successfully", {
+    stats: rows,
+  });
+});
+
 export const registerComplaint = asyncHandler(async (req, res) => {
-  const verifiedPhoneNumber = req.complaintSession?.phoneNumber;
-  const verificationId = req.complaintSession?.verificationId;
+  const verifiedEmail = `${req.complaintSession?.email || ""}`.trim().toLowerCase();
+  const googleSub = `${req.complaintSession?.googleSub || ""}`.trim();
 
   const complainantName = ensureString(req.body.complainantName, "complainantName", {
     maxLength: 120,
   });
+  const contactNumber = `${req.body.contactNumber || ""}`.trim();
   const message = ensureString(req.body.message, "message", {
     maxLength: 1000,
   });
@@ -116,18 +204,13 @@ export const registerComplaint = asyncHandler(async (req, res) => {
   const challenges = parseChallenges(req.body.challenges);
   const location = parseCoordinates(req.body);
 
-  const verification = await OtpVerification.findOne({
-    _id: verificationId,
-    phoneNumber: verifiedPhoneNumber,
-  });
-
-  if (!verification?.verifiedAt) {
-    throw new AppError("Verified OTP session not found", 401);
+  if (!verifiedEmail || !googleSub) {
+    throw new AppError("Verified Google session not found", 401);
   }
 
   const { startOfDay, endOfDay } = getStartAndEndOfCurrentDay();
   const existingComplaint = await Complaint.findOne({
-    phoneNumber: verifiedPhoneNumber,
+    email: verifiedEmail,
     createdAt: {
       $gte: startOfDay,
       $lte: endOfDay,
@@ -135,7 +218,7 @@ export const registerComplaint = asyncHandler(async (req, res) => {
   });
 
   if (existingComplaint) {
-    throw new AppError("Only one complaint per day is allowed for each mobile number", 409);
+    throw new AppError("Only one complaint per day is allowed for each verified email", 409);
   }
 
   const nearestStation = await resolveNearestStation(location);
@@ -154,7 +237,8 @@ export const registerComplaint = asyncHandler(async (req, res) => {
 
   const complaint = await Complaint.create({
     complainantName,
-    phoneNumber: verifiedPhoneNumber,
+    email: verifiedEmail,
+    ...(contactNumber ? { contactNumber } : {}),
     message,
     challenges,
     image: {
@@ -177,12 +261,33 @@ export const registerComplaint = asyncHandler(async (req, res) => {
     },
     municipality: municipality._id,
     verification: {
-      otpVerificationId: verification._id,
-      verifiedAt: verification.verifiedAt,
+      provider: "google",
+      googleSub,
+      verifiedAt: new Date(),
     },
   });
 
   await complaint.populate("municipality");
+
+  // Send an email to the responsible municipality
+  const targetEmail = municipality.contactEmail || "admin@aqisentry.local";
+  const emailText = `A new pollution complaint has been registered.
+  
+Complainant: ${complainantName} (${verifiedEmail})
+Location: ${complaint.location.addressLabel || "Lat: " + complaint.location.latitude + ", Lng: " + complaint.location.longitude}
+Station: ${nearestStation.name}
+Challenges: ${challenges.join(", ")}
+Message: ${message}
+
+Image Reference: ${uploadedImage.secureUrl}
+
+Please review this complaint within the municipality dashboard.`;
+
+  await mailer({
+    to: targetEmail,
+    subject: `[AQI SENTRY] Action Required: New Complaint for ${municipality.name}`,
+    text: emailText,
+  });
 
   return sendSuccess(res, 201, "Complaint registered and routed to nearby municipality", {
     complaint,

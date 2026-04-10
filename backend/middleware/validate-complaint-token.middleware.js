@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
 import AppError from "../utils/app-error.js";
-import { COMPLAINT_TOKEN_PREFIX, OTP_PURPOSES } from "../constants/complaint.constants.js";
+import {
+  COMPLAINT_TOKEN_PREFIX,
+  VERIFICATION_PURPOSES,
+} from "../constants/complaint.constants.js";
 
 const validateComplaintToken = (req, res, next) => {
   const authHeader = req.headers.authorization || "";
@@ -18,7 +21,7 @@ const validateComplaintToken = (req, res, next) => {
       process.env.JWT_SECRET || "aqi-complaint-secret"
     );
 
-    if (decoded.purpose !== OTP_PURPOSES.COMPLAINT) {
+    if (decoded.purpose !== VERIFICATION_PURPOSES.COMPLAINT) {
       return next(new AppError("Invalid complaint verification token", 401));
     }
 

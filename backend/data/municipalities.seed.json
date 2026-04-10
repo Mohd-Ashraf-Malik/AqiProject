@@ -1,0 +1,89 @@
+[
+  {
+    "name": "Municipal Corporation of Greater Mumbai",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "wardCode": "BMC",
+    "contactEmail": "controlroom@mcgm.gov.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Mumbai" },
+      { "sourceType": "waqi", "city": "Kurla" }
+    ]
+  },
+  {
+    "name": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "wardCode": "BBMP",
+    "contactEmail": "commissioner@bbmp.gov.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Bengaluru" },
+      { "sourceType": "waqi", "city": "Bangalore" },
+      { "sourceType": "waqi", "city": "HSR Layout" }
+    ]
+  },
+  {
+    "name": "Pune Municipal Corporation",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "wardCode": "PMC",
+    "contactEmail": "pmchealth@punecorporation.org",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Pune" }
+    ]
+  },
+  {
+    "name": "Greater Hyderabad Municipal Corporation",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "wardCode": "GHMC",
+    "contactEmail": "commissioner@ghmc.gov.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Hyderabad" }
+    ]
+  },
+  {
+    "name": "Municipal Corporation of Delhi",
+    "city": "Delhi",
+    "state": "Delhi",
+    "wardCode": "MCD",
+    "contactEmail": "commissioner@mcd.nic.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Delhi" },
+      { "sourceType": "waqi", "city": "New Delhi" }
+    ]
+  },
+  {
+    "name": "Noida Authority",
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "wardCode": "NOIDA",
+    "contactEmail": "complaints@noidaauthorityonline.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Noida" }
+    ]
+  },
+  {
+    "name": "Greater Chennai Corporation",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "wardCode": "GCC",
+    "contactEmail": "commissioner@chennaicorporation.gov.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Chennai" },
+      { "sourceType": "waqi", "city": "Madras" }
+    ]
+  },
+  {
+    "name": "Goa State Pollution Control Board",
+    "city": "Goa",
+    "state": "Goa",
+    "wardCode": "GSPCB",
+    "contactEmail": "goaspcb@gov.in",
+    "stationMappings": [
+      { "sourceType": "waqi", "city": "Goa" },
+      { "sourceType": "waqi", "city": "Panaji" },
+      { "sourceType": "waqi", "city": "Vasco" }
+    ]
+  }
+]

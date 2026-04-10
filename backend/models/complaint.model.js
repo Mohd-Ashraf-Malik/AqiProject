@@ -8,9 +8,14 @@ const complaintSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    phoneNumber: {
+    email: {
       type: String,
       required: true,
+      trim: true,
+      lowercase: true,
+    },
+    contactNumber: {
+      type: String,
       trim: true,
     },
     message: {
@@ -74,7 +79,7 @@ const complaintSchema = new mongoose.Schema(
       },
       sourceType: {
         type: String,
-        enum: ["iot", "government"],
+        enum: ["iot", "government", "waqi"],
         required: true,
       },
       currentAqi: {
@@ -102,9 +107,13 @@ const complaintSchema = new mongoose.Schema(
       required: true,
     },
     verification: {
-      otpVerificationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "OtpVerification",
+      provider: {
+        type: String,
+        enum: ["google"],
+        required: true,
+      },
+      googleSub: {
+        type: String,
         required: true,
       },
       verifiedAt: {
@@ -124,7 +133,7 @@ const complaintSchema = new mongoose.Schema(
   }
 );
 
-complaintSchema.index({ phoneNumber: 1, createdAt: -1 });
+complaintSchema.index({ email: 1, createdAt: -1 });
 
 const Complaint = mongoose.model("Complaint", complaintSchema);
 

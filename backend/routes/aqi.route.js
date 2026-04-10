@@ -1,11 +1,19 @@
 import express from "express";
-import { requestOtp, verifyOtp } from "../controllers/otp.controller.js";
+import { verifyGoogleAuth } from "../controllers/auth.controller.js";
 import {
   getComplaintMeta,
+  getComplaintStats,
   registerComplaint,
 } from "../controllers/complaint.controller.js";
-import { getNearbyStation } from "../controllers/station.controller.js";
-import { seedMunicipalities } from "../controllers/municipality.controller.js";
+import {
+  getCityComparison,
+  getHeatmapStations,
+  getNearbyStation,
+} from "../controllers/station.controller.js";
+import {
+  seedDefaultMunicipalities,
+  seedMunicipalities,
+} from "../controllers/municipality.controller.js";
 import validateComplaintToken from "../middleware/validate-complaint-token.middleware.js";
 import { complaintUpload } from "../middleware/upload.middleware.js";
 
@@ -18,10 +26,10 @@ router.get("/health", (req, res) => {
   });
 });
 
-router.post("/otp/request", requestOtp);
-router.post("/otp/verify", verifyOtp);
+router.post("/auth/google/verify", verifyGoogleAuth);
 
 router.get("/complaints/meta", getComplaintMeta);
+router.get("/complaints/stats", getComplaintStats);
 router.post(
   "/complaints",
   validateComplaintToken,
@@ -30,7 +38,10 @@ router.post(
 );
 
 router.get("/stations/nearby", getNearbyStation);
+router.get("/stations/heatmap", getHeatmapStations);
+router.get("/cities/compare", getCityComparison);
 
 router.post("/seed/municipalities", seedMunicipalities);
+router.post("/seed/municipalities/defaults", seedDefaultMunicipalities);
 
 export default router;

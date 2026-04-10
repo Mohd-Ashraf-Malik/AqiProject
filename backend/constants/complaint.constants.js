@@ -10,7 +10,7 @@ export const COMPLAINT_CHALLENGES = [
   "Open biomass burning",
 ];
 
-export const OTP_PURPOSES = {
+export const VERIFICATION_PURPOSES = {
   COMPLAINT: "complaint_submission",
 };
 

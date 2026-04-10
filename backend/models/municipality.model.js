@@ -37,7 +37,7 @@ const municipalitySchema = new mongoose.Schema(
         },
         sourceType: {
           type: String,
-          enum: ["iot", "government"],
+          enum: ["iot", "government", "waqi"],
         },
         city: {
           type: String,

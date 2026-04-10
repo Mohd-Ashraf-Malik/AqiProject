@@ -15,6 +15,21 @@ const connectDB = async () => {
   await mongoose.connect(mongoUri, {
     dbName: process.env.MONGODB_DB_NAME || DEFAULT_DB_NAME,
   });
+
+  try {
+    const { default: Municipality } = await import("../models/municipality.model.js");
+    if (await Municipality.countDocuments() === 0) {
+      console.log("Seeding municipalities dataset...");
+      const fs = await import("fs");
+      const path = await import("path");
+      const filePath = path.resolve("./data/municipalities.seed.json");
+      const seedData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+      await Municipality.insertMany(seedData);
+      console.log("Municipalities seeded successfully.");
+    }
+  } catch (err) {
+    console.error("Failed to mock seed municipalities:", err.message);
+  }
 };
 
 export default connectDB;
