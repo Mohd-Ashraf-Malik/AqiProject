@@ -1,28 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Fraunces:opsz,wght@9..144,600&display=swap');
 
 @import "tailwindcss";
 
-a.active hr{
-  display: block;
+:root {
+  color-scheme: light;
+  --surface: #f0f4f9;
+  --panel: rgba(255, 255, 255, 0.96);
+  --line: rgba(0, 0, 0, 0.09);
+  --ink: #1c2b3a;
+  --ink-strong: #0d1a26;
+  --muted: #5a7186;
+  --signal: #b87400;
+  --accent: #c96520;
+  --safe: #18874a;
+  --moderate: #a07d00;
+  --amber: #b05e10;
+  --danger: #c93232;
+  --danger-strong: #9a1525;
+  --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.08);
 }
 
-*{
-  font-family: Outfit;
+html {
+  scroll-behavior: smooth;
 }
 
-.prata-regular {
-  font-family: "Prata", serif;
-  font-weight: 400;
-  font-style: normal;
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top left, rgba(244, 162, 97, 0.07), transparent 28%),
+    radial-gradient(circle at top right, rgba(60, 180, 100, 0.06), transparent 24%),
+    linear-gradient(180deg, #eaf1f8 0%, #f0f5fb 50%, #e8eff7 100%);
+  color: var(--ink);
+  font-family: "Manrope", sans-serif;
 }
 
- ::-webkit-scrollbar{
-  display: none;
- }
+h1,
+h2,
+h3 {
+  font-family: "Fraunces", serif;
+  letter-spacing: -0.03em;
+}
 
- @media (max-width:640px) {
-  a.active{
-    background-color: black;
-    color: white;
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+.hero-grid {
+  position: relative;
+}
+
+.hero-grid::before {
+  content: "";
+  position: absolute;
+  inset: 1rem 0 auto auto;
+  width: 16rem;
+  height: 16rem;
+  background: radial-gradient(circle, rgba(255, 190, 80, 0.18), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.field-input {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1rem 1.1rem;
+  color: var(--ink-strong);
+  outline: none;
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.field-input:focus {
+  border-color: rgba(184, 116, 0, 0.5);
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.field-input::placeholder {
+  color: #8da4b8;
+}
+
+@media (max-width: 640px) {
+  .hero-grid::before {
+    width: 10rem;
+    height: 10rem;
   }
- }
+}

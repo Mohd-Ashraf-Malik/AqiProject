@@ -1,32 +1,25 @@
-// api.js
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000",
-  withCredentials: true
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api/v1",
+  withCredentials: true,
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+const authHeaders = (token) => ({
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
-    const originalRequest = error.config;
+export const aqiApi = {
+  verifyGoogleAuth: (payload) => api.post("/auth/google/verify", payload),
+  fetchComplaintMeta: () => api.get("/complaints/meta"),
+  fetchComplaintStats: (params) => api.get("/complaints/stats", { params }),
+  fetchNearbyStation: (params) => api.get("/stations/nearby", { params }),
+  fetchHeatmapStations: (params) => api.get("/stations/heatmap", { params }),
+  fetchCityComparison: (params) => api.get("/cities/compare", { params }),
+  submitComplaint: (formData, token) =>
+    api.post("/complaints", formData, authHeaders(token)),
+};
 
-    // prevent infinite loop
-    if (error.response?.status === 401 && error.response?.data?.message === "Unauthorized request" && !originalRequest._retry) {
-
-      originalRequest._retry = true;
-
-      try {
-        await api.post("/api/user/refresh-token");
-        return api(originalRequest);
-
-      } catch (refreshError) {
-        window.location.href = "/login";
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
 export default api;
