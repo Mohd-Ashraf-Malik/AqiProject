@@ -1,12 +1,16 @@
 import { createContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import api from '../utils/api.js'
+// import { toast } from "react-toastify";
+// import { useNavigate } from "react-router-dom";
+// import api from '../utils/api.js'
 
 export const demoContext = createContext();
 
 const demoContextProvider = (props) =>{
     const demo = "";
+    const [search,setSearch] = useState('');
+    const [showSearch,setShowSearch] = useState(false);
+    const navigate = useNavigate();
 
     const demoFunc = async () =>{
         return "demo"
@@ -17,7 +21,7 @@ const demoContextProvider = (props) =>{
     },[])
     
     const value = {
-        demo,demoFunc
+        demo,demoFunc,search,setSearch,showSearch,setShowSearch
     }
 
     return (
