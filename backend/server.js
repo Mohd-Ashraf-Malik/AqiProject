@@ -24,7 +24,8 @@ app.use(cors({
 app.use(cookieParser())
 app.use(helmet());
 
-// api end points
+// demo api end points
+app.use("/demo",demoRouter);
 
 app.get('/',(req,res)=>{
     res.send("API WORKING");

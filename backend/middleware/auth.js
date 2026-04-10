@@ -1,11 +1,7 @@
-const authUser = async (req, res, next) => {
+const demoAuth = async (req, res, next) => {
     try {
-        const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ","")
-        if(!token){
-            
-        }
-
-        if (!user) {
+        const demoToken = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ","")
+        if(!demoToken){
             return res.status(401).json({ message: "Invalid access token" });
         }
 
@@ -15,4 +11,4 @@ const authUser = async (req, res, next) => {
     }
 }
 
-export default authUser;
+export default demoAuth;
